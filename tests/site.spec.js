@@ -142,6 +142,14 @@ test('Landscape menu rails stay fixed and demo photos reveal color', async ({ pa
   const logo = page.locator('.menu-side-brand');
   await expect(arrow).toBeVisible();
   await expect(logo).toBeVisible();
+  const categoryLink = page.locator('.category-nav a').first();
+  await categoryLink.hover();
+  expect(await categoryLink.evaluate((element) => getComputedStyle(element, '::after').content)).toBe('none');
+  expect(await page.locator('.category-nav-entry').first().evaluate((element) => getComputedStyle(element, '::after').content)).toBe('"|"');
+  expect(await page.locator('.category-nav-entry').first().evaluate((element) => getComputedStyle(element).textDecorationLine)).toBe('none');
+  await expect(page.locator('#demo')).toHaveClass(/menu-category-cards/);
+  await expect(page.locator('#podzim')).toHaveClass(/menu-category-mixed/);
+  await expect(page.locator('#podzim .menu-category-subtitle')).toContainText('říjen 2026');
   const before = await logo.boundingBox();
   const photo = page.locator('.menu-item-image').first();
   await expect(photo).toHaveCSS('filter', 'grayscale(1)');
