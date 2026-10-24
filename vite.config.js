@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { seoPlugin } from './scripts/seo.mjs';
 
 const menuRoute = (server) => {
   server.middlewares.use((request, response, next) => {
@@ -9,7 +10,8 @@ const menuRoute = (server) => {
 };
 
 export default defineConfig({
-  plugins: [{ name: 'menu-route', configureServer: menuRoute, configurePreviewServer: menuRoute }],
+  appType: 'mpa',
+  plugins: [{ name: 'menu-route', configureServer: menuRoute, configurePreviewServer: menuRoute }, seoPlugin()],
   build: {
     rollupOptions: {
       input: {

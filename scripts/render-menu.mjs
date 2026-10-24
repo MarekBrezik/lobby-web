@@ -11,7 +11,7 @@ export function renderItem(item) {
 }
 
 const list = (items) => `<ul class="menu-items">${items.map(renderItem).join('')}</ul>`;
-const categories = menu.map((category, index) => `<section class="menu-category${['cards', 'mixed'].includes(category.layout) ? ` menu-category-${category.layout}` : ''}" id="${escape(category.id)}" aria-labelledby="title-${escape(category.id)}"><div class="menu-category-heading"><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h2 id="title-${escape(category.id)}">${escape(category.name)}</h2></div>${category.subtitle ? `<p class="menu-category-subtitle">${escape(category.subtitle)}</p>` : ''}${category.note ? `<p class="menu-category-note">${escape(category.note)}</p>` : ''}${category.groups ? `<div class="menu-groups">${category.groups.map((group) => `<div class="menu-group"><h3 class="menu-group-heading">${escape(group.name)}</h3>${group.note ? `<p class="menu-category-note">${escape(group.note)}</p>` : ''}${list(group.items)}</div>`).join('')}</div>` : list(category.items)}</section>`).join('\n');
+const categories = menu.map((category, index) => `<section${category.demo ? ' data-nosnippet' : ''} class="menu-category${['cards', 'mixed'].includes(category.layout) ? ` menu-category-${category.layout}` : ''}" id="${escape(category.id)}" aria-labelledby="title-${escape(category.id)}"><div class="menu-category-heading"><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h2 id="title-${escape(category.id)}">${escape(category.name)}</h2></div>${category.subtitle ? `<p class="menu-category-subtitle">${escape(category.subtitle)}</p>` : ''}${category.note ? `<p class="menu-category-note">${escape(category.note)}</p>` : ''}${category.groups ? `<div class="menu-groups">${category.groups.map((group) => `<div class="menu-group"><h3 class="menu-group-heading">${escape(group.name)}</h3>${group.note ? `<p class="menu-category-note">${escape(group.note)}</p>` : ''}${list(group.items)}</div>`).join('')}</div>` : list(category.items)}</section>`).join('\n');
 
 await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
 <html lang="cs">
@@ -25,11 +25,11 @@ await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
   <meta property="og:locale" content="cs_CZ">
   <meta property="og:title" content="Menu — LOBBY CAFE Zlín">
   <meta property="og:description" content="Od ranního espressa přes vydatný brunch až po večerní drinky.">
-  <meta property="og:image" content="/assets/share.png">
+  <meta property="og:image" content="https://lobbycafe.cz/assets/share.png">
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/assets/favicon.png" type="image/png" sizes="150x150">
-  <link rel="preload" href="/assets/tenor-sans.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="/assets/figtree.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/assets/tenor-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/figtree.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/src/style.css">
   <script type="module" src="/src/main.js"></script>
 </head>

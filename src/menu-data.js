@@ -1,6 +1,6 @@
 export const menu = [
   {
-    id: 'demo', name: 'Demo nabídka', subtitle: 'Ukázka fotografických karet', layout: 'cards', note: 'Pouze ukázka grafického řešení. Fotografie jsou převzaté z návrhového PDF a nepředstavují ověřené produkty kavárny. Názvy jsou ilustrační, ceny záměrně neuvádíme.',
+    id: 'demo', demo: true, name: 'Demo nabídka', subtitle: 'Ukázka fotografických karet', layout: 'cards', note: 'Pouze ukázka grafického řešení. Fotografie jsou převzaté z návrhového PDF a nepředstavují ověřené produkty kavárny. Názvy jsou ilustrační, ceny záměrně neuvádíme.',
     items: [
       { name: 'Slané ráno', image: '/assets/demo-1.webp', imageLabel: 'Ilustrační fotografie snídaně', description: 'Demo / prostor pro název, krátký popis a cenu.' },
       { name: 'Brunch bez spěchu', image: '/assets/demo-3.webp', imageLabel: 'Ilustrační fotografie brunche', description: 'Demo / fotografie bude u každé položky volitelná.' },
@@ -8,7 +8,7 @@ export const menu = [
     ],
   },
   {
-    id: 'podzim', name: 'Demo 02 / Autumn edition', subtitle: 'Sezónní nabídka · říjen 2026', layout: 'mixed', note: 'Skutečná podzimní nabídka podle dodaného PDF (10/2026). Ukázka kombinace textových položek a fotografií. Fotografie jsou pouze ilustrační, nikoliv fotografie uvedených jídel.',
+    id: 'podzim', schemaName: 'Podzimní nabídka', name: 'Demo 02 / Autumn edition', subtitle: 'Sezónní nabídka · říjen 2026', layout: 'mixed', note: 'Skutečná podzimní nabídka podle dodaného PDF (10/2026). Ukázka kombinace textových položek a fotografií. Fotografie jsou pouze ilustrační, nikoliv fotografie uvedených jídel.',
     groups: [
       { name: 'Podzim ve sklenici', items: [
         { name: 'Sirupy do kávy', price: '10 Kč', description: 'Perníček / pumpkin spice' },

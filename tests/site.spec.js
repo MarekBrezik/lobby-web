@@ -283,6 +283,86 @@ test('Deployment includes supplied favicon and menu operator details', async ({ 
   await expect(page.locator('.operator')).toContainText('Městským soudem v Praze, oddíl C, vložka 344060');
 });
 
+test('Canonical metadata and structured menu are in HTML without JavaScript', async ({ browser, request }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  for (const route of ['/', '/menu']) {
+    await page.goto(`http://127.0.0.1:4173${route}`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://lobbycafe.cz${route}`);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', `https://lobbycafe.cz${route}`);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://lobbycafe.cz/assets/share.png');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    const data = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+    const cafe = data['@graph'].find((entity) => entity['@type'] === 'CafeOrCoffeeShop');
+    expect(cafe.address.addressLocality).toBe('Zlín');
+    expect(cafe.telephone).toBe('+420703815252');
+    expect(cafe.openingHoursSpecification).toHaveLength(4);
+    if (route === '/menu') {
+      const structuredMenu = data['@graph'].find((entity) => entity['@type'] === 'Menu');
+      expect(structuredMenu.hasMenuSection).toHaveLength(menu.filter((category) => !category.demo).length);
+      expect(JSON.stringify(structuredMenu)).not.toContain('Slané ráno');
+      expect(JSON.stringify(structuredMenu)).not.toContain('demo-1.webp');
+      expect(JSON.stringify(structuredMenu)).toContain('Podzimní nabídka');
+      const coffee = structuredMenu.hasMenuSection.find((category) => category.name === 'Káva');
+      expect(coffee.hasMenuItem.find((item) => item.name === 'Espresso').offers).toEqual({ '@type': 'Offer', price: '60', priceCurrency: 'CZK' });
+      expect(coffee.hasMenuItem.find((item) => item.name === 'Batch brew')).not.toHaveProperty('offers');
+      await expect(page.locator('#demo')).toHaveAttribute('data-nosnippet', '');
+    }
+  }
+  const robots = await request.get('/robots.txt');
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain('Sitemap: https://lobbycafe.cz/sitemap.xml');
+  const sitemap = await request.get('/sitemap.xml');
+  expect(await sitemap.text()).toContain('<loc>https://lobbycafe.cz/menu</loc>');
+  expect(await (await request.get('/llms.txt')).text()).toContain('LOBBY CAFE');
+  expect((await request.get('/stranka-ktera-neexistuje')).status()).toBe(404);
+  await page.goto('http://127.0.0.1:4173/404.html');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await context.close();
+});
+
+test('Mobile loads WOFF2 fonts but not the hidden coffee photo', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  const requests = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('http://127.0.0.1:4173/');
+  await page.evaluate(() => document.fonts.ready);
+  expect(requests.some((url) => url.endsWith('coffee.webp'))).toBe(false);
+  expect(requests.some((url) => url.endsWith('.ttf'))).toBe(false);
+  expect(requests.some((url) => url.endsWith('tenor-sans.woff2'))).toBe(true);
+  expect(requests.some((url) => url.endsWith('figtree.woff2'))).toBe(true);
+  await context.close();
+});
+
+test('Native page transitions respect reduced motion', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => {
+    window.addEventListener('pageswap', (event) => sessionStorage.setItem('page-transition', String(Boolean(event.viewTransition))));
+  });
+  for (const reducedMotion of ['no-preference', 'reduce']) {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    await page.locator('.home-menu-link').click();
+    await expect(page).toHaveURL(/\/menu\/?$/);
+    expect(await page.evaluate(() => sessionStorage.getItem('page-transition'))).toBe(reducedMotion === 'reduce' ? 'false' : 'true');
+  }
+});
+
+test('Coffee image never intercepts address and reservation links', async ({ page }) => {
+  for (const [width, height] of [[1440, 700], [1366, 768], [1280, 650], [1920, 800], [390, 844]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('.home-coffee')).toHaveCSS('pointer-events', 'none');
+    expect(await page.locator('.home-address a').evaluateAll((links) => links.every((link) => {
+      const bounds = link.getBoundingClientRect();
+      return [.1, .5, .9].every((fraction) => document.elementFromPoint(bounds.left + bounds.width * fraction, bounds.top + bounds.height / 2)?.closest('a') === link);
+    }))).toBe(true);
+  }
+});
+
 test('Keyboard skip link and reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
