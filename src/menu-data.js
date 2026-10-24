@@ -2,9 +2,9 @@ export const menu = [
   {
     id: 'demo', name: 'Demo nabídka', subtitle: 'Ukázka fotografických karet', layout: 'cards', note: 'Pouze ukázka grafického řešení. Fotografie jsou převzaté z návrhového PDF a nepředstavují ověřené produkty kavárny. Názvy jsou ilustrační, ceny záměrně neuvádíme.',
     items: [
-      { name: 'Slané ráno', image: '/assets/demo-1.webp', description: 'Demo / prostor pro název, krátký popis a cenu.' },
-      { name: 'Brunch bez spěchu', image: '/assets/demo-3.webp', description: 'Demo / fotografie bude u každé položky volitelná.' },
-      { name: 'Sladká chvíle', image: '/assets/demo-2.webp', description: 'Demo / textový lístek níže funguje i bez fotografií.' },
+      { name: 'Slané ráno', image: '/assets/demo-1.webp', imageLabel: 'Ilustrační fotografie snídaně', description: 'Demo / prostor pro název, krátký popis a cenu.' },
+      { name: 'Brunch bez spěchu', image: '/assets/demo-3.webp', imageLabel: 'Ilustrační fotografie brunche', description: 'Demo / fotografie bude u každé položky volitelná.' },
+      { name: 'Sladká chvíle', image: '/assets/demo-2.webp', imageLabel: 'Ilustrační fotografie snídaňové misky', description: 'Demo / textový lístek níže funguje i bez fotografií.' },
     ],
   },
   {

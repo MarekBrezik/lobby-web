@@ -161,6 +161,20 @@ test('Landscape menu rails stay fixed and demo photos reveal color', async ({ pa
   await expect(page).toHaveURL(/\/$/);
 });
 
+test('Clicked right-column category stays active after scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/menu');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const target = page.locator('.category-nav a[href="#obedy"]');
+  await target.click();
+  await expect(page.locator('#obedy')).toBeInViewport();
+  await expect(target).toHaveAttribute('aria-current', 'location');
+  await expect(page.locator('.category-nav a[aria-current]')).toHaveCount(1);
+  await expect(page.locator('.category-nav a[href="#napoje"]')).not.toHaveAttribute('aria-current');
+  await page.reload();
+  await expect(target).toHaveAttribute('aria-current', 'location');
+});
+
 test('Touch menu photos are colored without interaction', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await context.newPage();
@@ -201,6 +215,72 @@ test('Mobile WebKit keeps home in view and supports the mixed menu', async () =>
     await expect(page.locator('.menu-item-image').first()).toHaveCSS('filter', 'none');
   }
   await browser.close();
+});
+
+test('Photo dialog shows color, title and price and restores keyboard focus', async ({ page }) => {
+  await page.goto('/menu');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const trigger = page.getByRole('link', { name: 'Zvětšit fotografii: Bacon & eggs', exact: true });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'Bacon & eggs' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.photo-price')).toHaveText('159 Kč');
+  await expect(dialog.locator('.photo-notice')).toHaveText('Ilustrační fotografie');
+  await expect(dialog.locator('img')).toHaveCSS('filter', 'none');
+  await expect(dialog.locator('img')).toHaveCSS('object-fit', 'contain');
+  await expect(page.getByRole('button', { name: 'Zavřít fotografii' })).toBeFocused();
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Zavřít fotografii' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await expect(page.locator('html')).not.toHaveClass(/photo-open/);
+  await page.getByRole('link', { name: 'Zvětšit fotografii: Slané ráno', exact: true }).click();
+  await expect(page.locator('.photo-price')).toBeHidden();
+  await expect(page.locator('.photo-notice')).toHaveText('Ilustrační fotografie');
+  await page.getByRole('button', { name: 'Zavřít fotografii' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('Mobile WebKit photo dialog fills the viewport and closes on tap', async () => {
+  const browser = await webkit.launch();
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:4173/menu');
+  const trigger = page.getByRole('link', { name: 'Zvětšit fotografii: Bacon & eggs', exact: true });
+  await trigger.tap();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const bounds = await dialog.boundingBox();
+  expect(bounds.x).toBe(0);
+  expect(bounds.y).toBe(0);
+  expect(Math.abs(bounds.width - 390)).toBeLessThan(1);
+  expect(Math.abs(bounds.height - 844)).toBeLessThan(1);
+  await expect(dialog.locator('img')).toHaveCSS('filter', 'none');
+  await expect(dialog.locator('.photo-price')).toHaveText('159 Kč');
+  await expect(page.getByRole('button', { name: 'Zavřít fotografii' })).toBeInViewport();
+  await page.getByRole('button', { name: 'Zavřít fotografii' }).tap();
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await browser.close();
+});
+
+test('Deployment includes supplied favicon and menu operator details', async ({ page, request }) => {
+  for (const route of ['/', '/menu']) {
+    await page.goto(route);
+    await expect(page.locator('link[rel="icon"][type="image/png"]')).toHaveAttribute('href', '/assets/favicon.png');
+  }
+  const icon = await request.get('/assets/favicon.png');
+  expect(icon.ok()).toBe(true);
+  expect(icon.headers()['content-type']).toContain('image/png');
+  expect((await request.get('/favicon.ico')).ok()).toBe(true);
+  await expect(page.locator('.operator')).toContainText('Provozovatel:');
+  await expect(page.locator('.operator')).toContainText('TRIAMICUS s.r.o');
+  await expect(page.locator('.operator')).toContainText('IČ: 098 85 684');
+  await expect(page.locator('.operator')).toContainText('Sídlem Osek nad Bečvou 401, 751 22');
+  await expect(page.locator('.operator')).toContainText('Městským soudem v Praze, oddíl C, vložka 344060');
 });
 
 test('Keyboard skip link and reduced motion', async ({ page }) => {
