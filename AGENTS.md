@@ -1,0 +1,13 @@
+# Project facts
+
+- LOBBY CAFE is a Czech-language cafe website targeting Cloudflare. Keep the home page minimal, based on the supplied PDF compositions; the full menu lives at `/menu`.
+- Use only Tenor Sans and Figtree and the palette #5C3A21, #8B5E3C, #000000, #F8F5F0, #EDE6DC. Preserve the original logo, including its original color.
+- `npm ci` installs dependencies. `npm run dev` serves the local site. `npm run build` generates `dist/` including both pages. `npm test` runs Playwright against a production preview on port 4173. Install browser engines with `npx playwright install chromium webkit` if needed; the suite includes mobile WebKit checks. `npm audit` checks dependencies.
+- `src/menu-data.js` holds the menu transcribed from `/Users/marek/Desktop/Lobby Cafe/podklady - zdroj/menu.pdf`. `scripts/render-menu.mjs` renders `menu/index.html` before dev/build. Edit the data and renderer, not the generated menu HTML. After data changes during development, rerun `node scripts/render-menu.mjs`.
+- Items can omit amount, description and image. Images use local `/assets/` paths; never show placeholder image boxes for items without photos. Do not invent seasonal products or prices.
+- Source PDF ambiguities: five identical Grüner Veltliner rows were deduplicated; three identical waffle variants were deduplicated; brackets around butter and the THOMY parenthesis were normalized. Confirm menu content/prices with the owner before publication.
+- Cloudflare Workers + D1 + R2 and Access-protected administration are agreed future implementation work, NOT implemented yet. The current preview uses build-time data. Instagram integration is deferred. Do not describe editing as available to cafe staff yet.
+- No Cloudflare resources have been created and no production deployment has been performed. The production hostname must be confirmed before adding absolute Open Graph/canonical URLs.
+- Git repository: https://github.com/MarekBrezik/lobby-web.git. User authorized publishing the working copy on 2026-10-24.
+- The second demo section contains real Autumn Edition 10/2026 items transcribed from the supplied autumn PDF, including allergens. Only bacon has a price in the extras source (20 Kč); do not invent missing prices. Photos reused from the design PDF are explicitly illustrative, not verified photos of these products. Remove or confirm demo sections and image usage rights before public release.
+- Desktop landscape menu uses fixed side rails (return arrow and bottom-to-top logo). Photo cards are grayscale only on fine-pointer hover devices; touch devices show color immediately. Home uses viewport-height layout; test low-height desktop and mobile sizes when changing spacing.

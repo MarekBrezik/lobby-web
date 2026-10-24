@@ -1,0 +1,19 @@
+{
+  "name": "lobby-cafe",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/render-menu.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "prebuild": "node scripts/render-menu.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.56.1",
+    "vite": "7.3.7"
+  }
+}
