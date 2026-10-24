@@ -11,6 +11,7 @@ export function renderItem(item) {
 }
 
 const list = (items) => `<ul class="menu-items">${items.map(renderItem).join('')}</ul>`;
+const navEntry = (category) => `<span class="category-nav-entry${category.seasonal ? ' category-nav-entry-seasonal' : ''}"><a href="#${escape(category.id)}">${escape(category.name)}<span aria-hidden="true">↗</span></a></span>`;
 const categories = menu.map((category, index) => `<section${category.demo ? ' data-nosnippet' : ''} class="menu-category${['cards', 'mixed'].includes(category.layout) ? ` menu-category-${category.layout}` : ''}" id="${escape(category.id)}" aria-labelledby="title-${escape(category.id)}"><div class="menu-category-heading"><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h2 id="title-${escape(category.id)}">${escape(category.name)}</h2></div>${category.subtitle ? `<p class="menu-category-subtitle">${escape(category.subtitle)}</p>` : ''}${category.note ? `<p class="menu-category-note">${escape(category.note)}</p>` : ''}${category.groups ? `<div class="menu-groups">${category.groups.map((group) => `<div class="menu-group"><h3 class="menu-group-heading">${escape(group.name)}</h3>${group.note ? `<p class="menu-category-note">${escape(group.note)}</p>` : ''}${list(group.items)}</div>`).join('')}</div>` : list(category.items)}</section>`).join('\n');
 
 await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
@@ -40,7 +41,7 @@ await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
   <header class="menu-header menu-wrap"><a class="brand" href="/" aria-label="LOBBY CAFE — úvod"><img src="/assets/logo.svg" alt="LOBBY CAFE" width="254" height="32"></a><nav aria-label="Hlavní navigace"><a href="/">Zpět do kavárny <span aria-hidden="true">↗</span></a><a href="tel:+420703815252">Rezervace <span aria-hidden="true">↗</span></a></nav></header>
   <main id="obsah" class="menu-wrap">
     <div class="menu-intro"><div><p class="eyebrow">OD RÁNA DO VEČERA</p><h1>Na co máte <span>chuť?</span></h1></div><p>Dobrá káva. Pomalá snídaně.<br>A něco na večer.</p></div>
-    <div class="menu-layout"><nav class="category-nav" aria-label="Kategorie menu">${menu.map((category) => `<span class="category-nav-entry"><a href="#${escape(category.id)}">${escape(category.name)}<span aria-hidden="true">↗</span></a></span>`).join('')}</nav><div class="menu-categories">${categories}</div></div>
+    <div class="menu-layout"><nav class="category-nav" aria-label="Kategorie menu"><div class="category-nav-primary">${menu.filter((category) => !category.seasonal).map(navEntry).join('')}</div>${menu.filter((category) => category.seasonal).map(navEntry).join('')}</nav><div class="menu-categories">${categories}</div></div>
     <aside class="menu-footnote"><p>Máte otázku k nabídce? Rádi vám poradíme.</p><a href="tel:+420703815252">+420 703 815 252 <span aria-hidden="true">↗</span></a></aside>
   </main>
   <footer class="menu-footer menu-wrap"><a href="/">← Zpět do kavárny</a><span>nám. T. G. Masaryka 2433, Zlín</span><span>LOBBY CAFE</span><div class="operator"><p>Provozovatel:</p><p>TRIAMICUS s.r.o<br>IČ: 098 85 684<br>Sídlem Osek nad Bečvou 401, 751 22</p><p>Společnost zapsaná v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka 344060</p></div></footer>

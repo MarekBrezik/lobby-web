@@ -170,7 +170,7 @@ test('Clicked right-column category stays active after scrolling', async ({ page
   await expect(page.locator('#obedy')).toBeInViewport();
   await expect(target).toHaveAttribute('aria-current', 'location');
   await expect(page.locator('.category-nav a[aria-current]')).toHaveCount(1);
-  await expect(page.locator('.category-nav a[href="#napoje"]')).not.toHaveAttribute('aria-current');
+  await expect(page.locator('.category-nav a[href="#snidane"]')).not.toHaveAttribute('aria-current');
   await page.reload();
   await expect(target).toHaveAttribute('aria-current', 'location');
 });
@@ -360,6 +360,22 @@ test('Coffee image never intercepts address and reservation links', async ({ pag
       const bounds = link.getBoundingClientRect();
       return [.1, .5, .9].every((fraction) => document.elementFromPoint(bounds.left + bounds.width * fraction, bounds.top + bounds.height / 2)?.closest('a') === link);
     }))).toBe(true);
+  }
+});
+
+test('Menu navigation and sections follow the approved category order', async ({ page }) => {
+  await page.goto('/menu');
+  const names = ['Káva', 'Matcha & čaje', 'Limonády & fresh', 'Nealkoholické nápoje', 'Drinky & pivo', 'Vinný lístek', 'Snídaně & brunch', 'Obědy & snacky', 'Demo nabídka', 'Něco navíc', 'Autumn edition'];
+  expect(await page.locator('.menu-category h2').allTextContents()).toEqual(names);
+  expect(await page.locator('.category-nav a').evaluateAll((links) => links.map((link) => link.firstChild.textContent.trim()))).toEqual(names);
+  await expect(page.locator('#podzim .menu-category-note').first()).toContainText('Skutečná podzimní nabídka');
+  await expect(page.locator('body')).not.toContainText('Demo 02');
+  await expect(page.locator('body')).toHaveCSS('text-transform', 'uppercase');
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const seasonal = await page.locator('.category-nav-entry-seasonal').boundingBox();
+    const primaryBottom = await page.locator('.category-nav-primary .category-nav-entry').evaluateAll((entries) => Math.max(...entries.map((entry) => entry.getBoundingClientRect().bottom)));
+    expect(seasonal.y).toBeGreaterThanOrEqual(primaryBottom);
   }
 });
 

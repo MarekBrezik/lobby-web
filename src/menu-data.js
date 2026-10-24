@@ -1,6 +1,6 @@
 export const menu = [
   {
-    id: 'demo', demo: true, name: 'Demo nabídka', subtitle: 'Ukázka fotografických karet', layout: 'cards', note: 'Pouze ukázka grafického řešení. Fotografie jsou převzaté z návrhového PDF a nepředstavují ověřené produkty kavárny. Názvy jsou ilustrační, ceny záměrně neuvádíme.',
+    id: 'demo', order: 90, demo: true, name: 'Demo nabídka', subtitle: 'Ukázka fotografických karet', layout: 'cards', note: 'Pouze ukázka grafického řešení. Fotografie jsou převzaté z návrhového PDF a nepředstavují ověřené produkty kavárny. Názvy jsou ilustrační, ceny záměrně neuvádíme.',
     items: [
       { name: 'Slané ráno', image: '/assets/demo-1.webp', imageLabel: 'Ilustrační fotografie snídaně', description: 'Demo / prostor pro název, krátký popis a cenu.' },
       { name: 'Brunch bez spěchu', image: '/assets/demo-3.webp', imageLabel: 'Ilustrační fotografie brunche', description: 'Demo / fotografie bude u každé položky volitelná.' },
@@ -8,7 +8,7 @@ export const menu = [
     ],
   },
   {
-    id: 'podzim', schemaName: 'Podzimní nabídka', name: 'Demo 02 / Autumn edition', subtitle: 'Sezónní nabídka · říjen 2026', layout: 'mixed', note: 'Skutečná podzimní nabídka podle dodaného PDF (10/2026). Ukázka kombinace textových položek a fotografií. Fotografie jsou pouze ilustrační, nikoliv fotografie uvedených jídel.',
+    id: 'podzim', order: 120, seasonal: true, schemaName: 'Podzimní nabídka', name: 'Autumn edition', subtitle: 'Sezónní nabídka · říjen 2026', layout: 'mixed', note: 'Skutečná podzimní nabídka podle dodaného PDF (10/2026). Ukázka kombinace textových položek a fotografií. Fotografie jsou pouze ilustrační, nikoliv fotografie uvedených jídel.',
     groups: [
       { name: 'Podzim ve sklenici', items: [
         { name: 'Sirupy do kávy', price: '10 Kč', description: 'Perníček / pumpkin spice' },
@@ -40,7 +40,7 @@ export const menu = [
     ],
   },
   {
-    id: 'kava', name: 'Káva', note: 'Bezkofeinová varianta možná u všech druhů káv. Všechny kávy lze připravit i s ledem.',
+    id: 'kava', order: 10, name: 'Káva', note: 'Bezkofeinová varianta možná u všech druhů káv. Všechny kávy lze připravit i s ledem.',
     items: [
       { name: 'Espresso', amount: '30 ml', price: '60 Kč' },
       { name: 'Doppio', amount: '60 ml', price: '85 Kč' },
@@ -58,7 +58,7 @@ export const menu = [
     ],
   },
   {
-    id: 'snidane', name: 'Snídaně & brunch', groups: [
+    id: 'snidane', order: 70, name: 'Snídaně & brunch', groups: [
       { name: 'Slané', items: [
         { name: 'Míchaná vejce', amount: '250 g', price: '149 Kč', description: '3 ks farmářských vajec, kváskový chléb, domácí máslo, salátek s rajčaty' },
         { name: 'Vejce do skla', amount: '200 g', price: '169 Kč', description: 'Parmezán, pažitka, kváskový chléb, domácí máslo' },
@@ -74,7 +74,7 @@ export const menu = [
     ],
   },
   {
-    id: 'limonady', name: 'Limonády & fresh', groups: [
+    id: 'limonady', order: 30, name: 'Limonády & fresh', groups: [
       { name: 'Domácí limonády', items: [
         { name: 'Grapefruit', amount: '400 ml', price: '80 Kč' },
         { name: 'Jahoda', amount: '400 ml', price: '80 Kč' },
@@ -89,7 +89,7 @@ export const menu = [
     ],
   },
   {
-    id: 'matcha', name: 'Matcha & čaje', items: [
+    id: 'matcha', order: 20, name: 'Matcha & čaje', items: [
       { name: 'Matcha latte', amount: '250 ml', price: '110 Kč' },
       { name: 'Iced Matcha', amount: '300 ml', price: '130 Kč', description: 'Mango, jahoda, malina' },
       { name: 'Chai latte', amount: '250 ml', price: '90 Kč' },
@@ -98,7 +98,7 @@ export const menu = [
     ],
   },
   {
-    id: 'napoje', name: 'Nealkoholické nápoje', items: [
+    id: 'napoje', order: 40, name: 'Nealkoholické nápoje', items: [
       { name: 'Coca-Cola / Coca-Cola Zero', amount: '330 ml', price: '55 Kč' },
       { name: 'Kombucha', amount: '330 ml', price: '85 Kč' },
       { name: 'Tonic', amount: '200 ml', price: '55 Kč', description: 'Různé příchutě' },
@@ -108,7 +108,7 @@ export const menu = [
     ],
   },
   {
-    id: 'obedy', name: 'Obědy & snacky', items: [
+    id: 'obedy', order: 80, name: 'Obědy & snacky', items: [
       { name: 'Denní polévka', amount: '330 ml', price: '60 Kč', description: 'Podávaná s kváskovým chlebem nebo focacciou' },
       { name: 'Caesar salát', amount: '350 g', price: '169 Kč', description: 'Kuřecí maso, římský salát, parmezán, krutony' },
       { name: 'Club sandwich', amount: '350 g', price: '169 Kč', description: 'Kuřecí maso, slanina, salát, rajče, omáčka' },
@@ -119,7 +119,7 @@ export const menu = [
     ],
   },
   {
-    id: 'drinky', name: 'Drinky & pivo', items: [
+    id: 'drinky', order: 50, name: 'Drinky & pivo', items: [
       { name: 'Aperol Spritz', amount: '200 ml', price: '140 Kč' },
       { name: 'Gin Tonic', amount: '200 ml', price: '140 Kč' },
       { name: 'Mimosa', amount: '150 ml', price: '120 Kč' },
@@ -133,7 +133,7 @@ export const menu = [
     ],
   },
   {
-    id: 'vino', name: 'Vinný lístek', note: 'by Šebesta', items: [
+    id: 'vino', order: 60, name: 'Vinný lístek', note: 'by Šebesta', items: [
       { name: 'Grüner Veltliner 2025, Schmelz, Wachau', amount: '100 ml', price: '95 Kč' },
       { name: 'Prosecco (sklenka)', amount: '100 ml', price: '85 Kč' },
       { name: 'Prosecco (láhev)', amount: '750 ml', price: '490 Kč' },
@@ -141,9 +141,9 @@ export const menu = [
     ],
   },
   {
-    id: 'extra', name: 'Něco navíc', items: [
+    id: 'extra', order: 110, name: 'Něco navíc', items: [
       { name: 'Variace příchutí', price: '10 Kč' },
       { name: 'Alternativní mléka', price: '15 Kč', description: 'Ovesné, mandlové, kokosové' },
     ],
   },
-];
+].sort((a, b) => a.order - b.order);

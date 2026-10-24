@@ -266,6 +266,19 @@ h1, h2, h3 { font-family: 'Tenor Sans', sans-serif; font-weight: 400; }
   .menu-categories { column-gap: clamp(45px, 6vw, 100px); }
   .menu-back-arrow:hover { text-decoration: none; }
 }
+.menu-page { text-transform: uppercase; }
+.category-nav-primary { display: contents; }
+.category-nav-entry-seasonal { flex-basis: 100%; width: 100%; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cream); }
+.category-nav-entry-seasonal a { letter-spacing: 1.5px; }
+@media (max-width: 900px) {
+  .category-nav { display: block; overflow: visible; }
+  .category-nav-primary { display: flex; width: 100%; overflow-x: auto; gap: 22px; }
+  .category-nav-primary .category-nav-entry { flex-shrink: 0; }
+  .menu-category { scroll-margin-top: 140px; }
+}
+@media (min-width: 1000px) and (orientation: landscape) {
+  .menu-category { scroll-margin-top: 220px; }
+}
 @media print {
   .category-nav, .menu-header nav, .menu-footnote, .skip-link { display: none; }
   .menu-layout { display: block; }
