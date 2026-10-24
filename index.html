@@ -32,7 +32,7 @@
         <h1><span>Udělejte si</span> skvělý den<br>v naší <span>kavárně.</span></h1>
         <p>Od ranního espressa přes vydatný brunch až po večerní drinky. Pečlivě vybraná káva, snídaně a osvěžující koktejly.</p>
         <p>Prostor pro pracovní schůzky i odpočinek.</p>
-        <a class="home-menu-link" href="/menu"><span>Prohlédnout menu</span><svg viewBox="0 0 68 32" width="68" height="32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 16h64M50 2l15 14-15 14"/></svg></a>
+        <div class="home-actions"><a class="home-menu-link" href="/menu"><span>Prohlédnout menu</span><svg viewBox="0 0 68 32" width="68" height="32" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 16h64M50 2l15 14-15 14"/></svg></a><a class="loyalty-link" href="https://lobbycafe-fkp.kilomayo.app/invite/zakaznik"><img src="/assets/loyalty-mark.png" alt="Věrnosti si ceníme — každá desátá káva je na nás" width="300" height="141"></a></div>
       </div>
       <div class="home-coffee"><picture><source media="(max-width: 760px)" srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1'%20height='1'/%3E"><img src="/assets/coffee.webp" alt="Šálek černé kávy obklopený kávovými zrny" width="1200" height="991" fetchpriority="high" decoding="async"></picture></div>
     </main>
@@ -47,5 +47,10 @@
       </div>
     </footer>
   </div>
+  <dialog id="loyalty" class="loyalty-dialog" aria-labelledby="loyalty-title" aria-describedby="loyalty-description">
+    <form method="dialog"><button class="loyalty-close" aria-label="Zavřít věrnostní program" autofocus><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg></button></form>
+    <div class="loyalty-copy"><p class="eyebrow">VĚRNOSTNÍ PROGRAM</p><h2 id="loyalty-title">Věrnosti si ceníme.</h2><p id="loyalty-description">Za každou návštěvu sbíráte body a desátá káva je na náš účet.</p><ol><li>Otevřete kartičku tlačítkem níže nebo naskenujte QR kód — najdete ho i u nás na baru.</li><li>Uložte si kartičku do mobilu.</li><li>Ukažte ji při každém placení.</li></ol><a class="loyalty-card-link" href="https://lobbycafe-fkp.kilomayo.app/invite/zakaznik" target="_blank" rel="noopener noreferrer">Otevřít kartičku <span aria-hidden="true">↗</span><span class="sr-only"> — služba Kilomayo, v novém okně</span></a><p class="loyalty-goodbye">Stavte se na kávu. Těšíme se na vás.</p></div>
+    <figure class="loyalty-qr"><img src="/assets/loyalty-qr.png" alt="QR kód pro otevření věrnostní kartičky LOBBY CAFE" width="444" height="444" loading="lazy"><figcaption>Naskenujte a uložte si kartičku do mobilu.</figcaption></figure>
+  </dialog>
 </body>
 </html>

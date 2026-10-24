@@ -1,3 +1,34 @@
+const loyaltyLink = document.querySelector('.loyalty-link');
+const loyaltyDialog = document.querySelector('#loyalty');
+
+if (loyaltyLink && typeof loyaltyDialog?.showModal === 'function') {
+  loyaltyLink.setAttribute('aria-haspopup', 'dialog');
+  loyaltyLink.setAttribute('aria-controls', 'loyalty');
+  loyaltyLink.addEventListener('click', (event) => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    loyaltyDialog.showModal();
+    document.documentElement.classList.add('loyalty-open');
+  });
+  loyaltyDialog.addEventListener('close', () => {
+    document.documentElement.classList.remove('loyalty-open');
+    loyaltyLink.focus({ preventScroll: true });
+  });
+  loyaltyDialog.addEventListener('click', (event) => {
+    const bounds = loyaltyDialog.getBoundingClientRect();
+    if (event.target === loyaltyDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) loyaltyDialog.close();
+  });
+  loyaltyDialog.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+    const controls = [...loyaltyDialog.querySelectorAll('button, a[href]')];
+    const target = event.shiftKey && document.activeElement === controls[0] ? controls.at(-1) : !event.shiftKey && document.activeElement === controls.at(-1) ? controls[0] : null;
+    if (target) {
+      event.preventDefault();
+      target.focus();
+    }
+  });
+}
+
 const categoryLinks = [...document.querySelectorAll('.category-nav a')];
 const sections = [...document.querySelectorAll('.menu-category')];
 const photoLinks = document.querySelectorAll('.menu-photo-trigger');

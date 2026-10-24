@@ -379,6 +379,71 @@ test('Menu navigation and sections follow the approved category order', async ({
   }
 });
 
+test('Loyalty dialog explains the card, traps focus and closes accessibly', async ({ page }) => {
+  await page.goto('/');
+  const trigger = page.locator('.loyalty-link');
+  await expect(trigger.locator('img')).toHaveAttribute('src', '/assets/loyalty-mark.png');
+  await page.evaluate(() => document.fonts.ready);
+  const badgeBounds = await trigger.boundingBox();
+  const menuBounds = await page.locator('.home-menu-link').boundingBox();
+  expect(Math.abs(badgeBounds.y + badgeBounds.height / 2 - menuBounds.y - menuBounds.height / 2)).toBeLessThan(1);
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'Věrnosti si ceníme.' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('desátá káva je na náš účet');
+  await expect(dialog.locator('li')).toHaveCount(3);
+  await expect(dialog.locator('.loyalty-card-link')).toHaveAttribute('href', 'https://lobbycafe-fkp.kilomayo.app/invite/zakaznik');
+  await expect(dialog.locator('img')).toHaveJSProperty('complete', true);
+  const close = page.getByRole('button', { name: 'Zavřít věrnostní program' });
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(dialog.locator('.loyalty-card-link')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  await page.screenshot({ path: 'test-results/loyalty-desktop.png' });
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await expect(page.locator('html')).not.toHaveClass(/loyalty-open/);
+});
+
+test('Loyalty fits the mobile home and opens in mobile WebKit', async () => {
+  const browser = await webkit.launch();
+  const context = await browser.newContext({ isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  for (const [width, height] of [[320, 568], [390, 844], [430, 932]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('http://127.0.0.1:4173/');
+    await page.evaluate(() => document.fonts.ready);
+    const trigger = page.locator('.loyalty-link');
+    await expect(trigger).toBeInViewport();
+    const bounds = await trigger.boundingBox();
+    const footer = await page.locator('.home-footer').boundingBox();
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(footer.y);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
+    await trigger.tap();
+    const dialog = page.getByRole('dialog', { name: 'Věrnosti si ceníme.' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('.loyalty-card-link')).toBeInViewport();
+    expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    if (width === 390) await page.screenshot({ path: 'test-results/loyalty-mobile.png' });
+    await page.getByRole('button', { name: 'Zavřít věrnostní program' }).tap();
+    await expect(trigger).toBeFocused();
+  }
+  await browser.close();
+});
+
+test('Loyalty card remains a direct link without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:4173/');
+  await expect(page.locator('.loyalty-link')).toHaveAttribute('href', 'https://lobbycafe-fkp.kilomayo.app/invite/zakaznik');
+  await expect(page.locator('#loyalty')).not.toBeVisible();
+  await context.close();
+});
+
 test('Keyboard skip link and reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
