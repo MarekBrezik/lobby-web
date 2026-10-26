@@ -24,7 +24,7 @@ export function structuredData(isMenu) {
   const cafe = {
     '@type': 'CafeOrCoffeeShop', '@id': cafeId, name: 'LOBBY CAFE',
     url: `${origin}/`, telephone: '+420703815252',
-    description: 'Výběrová káva, snídaně, brunch a večerní drinky v centru Zlína. Prostor pro pracovní schůzky i odpočinek.',
+    description: 'Výběrová káva, snídaně, brunch a drinky v centru Zlína. Prostor pro pracovní schůzky i odpočinek.',
     logo: `${origin}/assets/logo.svg`, image: imageUrl,
     address: { '@type': 'PostalAddress', streetAddress: 'nám. T. G. Masaryka 2433', addressLocality: 'Zlín', postalCode: '760 01', addressCountry: 'CZ' },
     openingHoursSpecification: [
@@ -48,7 +48,7 @@ export function structuredData(isMenu) {
     { '@type': 'WebSite', '@id': `${origin}/#website`, url: `${origin}/`, name: 'LOBBY CAFE', inLanguage: 'cs-CZ', publisher: { '@id': operatorId } },
     {
       '@type': 'WebPage', '@id': `${isMenu ? menuUrl : `${origin}/`}#webpage`,
-      url: isMenu ? menuUrl : `${origin}/`, name: isMenu ? 'Menu — LOBBY CAFE Zlín' : 'LOBBY CAFE — Kavárna a večerní bar ve Zlíně',
+      url: isMenu ? menuUrl : `${origin}/`, name: isMenu ? 'Menu — LOBBY CAFE Zlín' : 'LOBBY CAFE — Kavárna a bar ve Zlíně',
       inLanguage: 'cs-CZ', isPartOf: { '@id': `${origin}/#website` }, about: { '@id': cafeId },
       mainEntity: { '@id': isMenu ? menuId : cafeId },
     },
@@ -90,7 +90,7 @@ export function seoPlugin() {
             { tag: 'meta', attrs: { name: 'twitter:title', content: title } },
             { tag: 'meta', attrs: { name: 'twitter:description', content: description } },
             { tag: 'meta', attrs: { name: 'twitter:image', content: imageUrl } },
-            { tag: 'meta', attrs: { name: 'twitter:image:alt', content: 'LOBBY CAFE — káva, brunch a večerní drinky ve Zlíně' } },
+            { tag: 'meta', attrs: { name: 'twitter:image:alt', content: 'LOBBY CAFE — káva, brunch a drinky ve Zlíně' } },
             { tag: 'script', attrs: { type: 'application/ld+json' }, children: JSON.stringify(structuredData(isMenu)).replace(/</g, '\\u003c') },
           ],
         };
@@ -101,7 +101,7 @@ export function seoPlugin() {
         'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
         'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/</loc></url><url><loc>${menuUrl}</loc></url></urlset>\n`,
         '_headers': 'https://lobby-web-a8t.pages.dev/*\n  X-Robots-Tag: noindex\n\nhttps://:deployment.lobby-web-a8t.pages.dev/*\n  X-Robots-Tag: noindex\n',
-        'llms.txt': `# LOBBY CAFE\n\n> Kavárna a večerní bar v centru Zlína. Výběrová káva, snídaně, brunch a večerní drinky.\n\n## Oficiální stránky\n- [Úvod a kontakty](${origin}/)\n- [Menu s cenami](${menuUrl})\n\n## Návštěva\nAdresa: nám. T. G. Masaryka 2433, 760 01 Zlín, Česká republika.\nRezervace: +420 703 815 252.\nPondělí–čtvrtek 7:30–18:00; pátek 7:30–21:00; sobota 8:00–20:00; neděle 8:00–18:00.\nProvozovatel: TRIAMICUS s.r.o, IČO 09885684.\n\n## Interpretace nabídky\nMenu je dostupné v HTML bez JavaScriptu a doplněné strukturovanými daty Menu/MenuItem. Kategorie označená Demo nabídka obsahuje ilustrační, nikoliv skutečné produkty a je ze strukturovaného menu vynechána. U podzimní nabídky pochází texty a ceny z podkladů 10/2026; fotografie označené jako ilustrační nezobrazují ověřené produkty. Chybějící cenu ani aktuální dostupnost položek neodvozujte.\n`,
+        'llms.txt': `# LOBBY CAFE\n\n> Kavárna a bar v centru Zlína. Výběrová káva, snídaně, brunch a drinky.\n\n## Oficiální stránky\n- [Úvod a kontakty](${origin}/)\n- [Menu s cenami](${menuUrl})\n\n## Návštěva\nAdresa: nám. T. G. Masaryka 2433, 760 01 Zlín, Česká republika.\nRezervace: +420 703 815 252.\nPondělí–čtvrtek 7:30–18:00; pátek 7:30–21:00; sobota 8:00–20:00; neděle 8:00–18:00.\nProvozovatel: TRIAMICUS s.r.o, IČO 09885684.\n\n## Interpretace nabídky\nMenu je dostupné v HTML bez JavaScriptu a doplněné strukturovanými daty Menu/MenuItem. Kategorie označená Demo nabídka obsahuje ilustrační, nikoliv skutečné produkty a je ze strukturovaného menu vynechána. U podzimní nabídky pochází texty a ceny z podkladů 10/2026; fotografie označené jako ilustrační nezobrazují ověřené produkty. Chybějící cenu ani aktuální dostupnost položek neodvozujte.\n`,
         '404.html': '<!doctype html><html lang="cs"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Stránka nenalezena — LOBBY CAFE</title><style>@font-face{font-family:Figtree;src:url(/assets/figtree.woff2) format("woff2");font-display:swap}body{margin:0;padding:15vh 8vw;background:#F8F5F0;color:#5C3A21;font:18px/1.6 Figtree,sans-serif}a{color:inherit}</style></head><body><main><h1>Tahle stránka tu není.</h1><p>Na kávu jste ale na správné adrese.</p><a href="/">Zpět do LOBBY CAFE</a></main></body></html>',
       };
       for (const [fileName, source] of Object.entries(assets)) this.emitFile({ type: 'asset', fileName, source });
