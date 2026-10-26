@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Správa menu — LOBBY CAFE</title>
+  <link rel="icon" href="/assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/src/style.css">
+  <link rel="stylesheet" href="/src/admin.css">
+  <script type="module" src="/src/admin.js"></script>
+</head>
+<body class="admin-page">
+  <a class="skip-link" href="#editor">Přejít k úpravám</a>
+  <header class="admin-header"><a href="/" aria-label="LOBBY CAFE — titulní stránka"><img src="/assets/logo.svg" width="254" height="32" alt="LOBBY CAFE"></a><div><h1>Správa menu</h1><p id="identity">Připojuji administraci…</p></div><a href="/menu" target="_blank" rel="noopener noreferrer">Zveřejněné menu <span aria-hidden="true">↗</span><span class="sr-only"> — nové okno</span></a></header>
+  <div class="admin-toolbar"><p id="status" role="status" aria-live="polite">Načítám nabídku…</p><div><button id="export" type="button" disabled>Stáhnout zálohu</button><button id="reload" type="button" disabled>Načíst znovu</button><button id="publish" class="admin-primary" type="button" disabled>Uložit a zveřejnit</button></div></div>
+  <p id="error" class="admin-error" role="alert" hidden></p>
+  <main class="admin-layout"><aside class="admin-sidebar"><h2>Nabídky a kategorie</h2><nav id="categories" aria-label="Spravované kategorie"></nav><button id="add-category" type="button" disabled>Přidat kategorii</button><button id="add-seasonal" type="button" disabled>Přidat sezónní nabídku</button><p class="admin-help">Sezónní nabídka není povinná. Skrytou nabídku návštěvníci neuvidí, ale zůstane připravená pro další použití.</p></aside><section id="editor" tabindex="-1" aria-label="Editor nabídky"><p>Po připojení vyberte kategorii vlevo.</p></section></main>
+  <noscript><p class="admin-error">Administrace potřebuje JavaScript. Veřejné menu funguje i bez něj.</p></noscript>
+</body>
+</html>

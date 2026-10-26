@@ -12,11 +12,20 @@
     "prebuild": "node scripts/render-menu.mjs",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "playwright test"
+    "test": "playwright test",
+    "dev:cloudflare": "npm run build && node scripts/dev-cloudflare.mjs",
+    "test:admin": "node scripts/test-admin.mjs",
+    "test:server": "node --test tests/server/*.test.js",
+    "db:schema": "node scripts/print-schema.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.56.1",
-    "vite": "7.3.7"
+    "vite": "7.3.7",
+    "wrangler": "4.153.0"
+  },
+  "dependencies": {
+    "image-size": "2.0.4",
+    "jose": "6.1.0"
   }
 }

@@ -20,7 +20,7 @@ function menuItem(item) {
   };
 }
 
-export function structuredData(isMenu) {
+export function structuredData(isMenu, menuData = menu) {
   const cafe = {
     '@type': 'CafeOrCoffeeShop', '@id': cafeId, name: 'LOBBY CAFE',
     url: `${origin}/`, telephone: '+420703815252',
@@ -55,7 +55,7 @@ export function structuredData(isMenu) {
   ];
   if (isMenu) graph.push({
     '@type': 'Menu', '@id': menuId, name: 'Menu LOBBY CAFE', url: menuUrl, inLanguage: 'cs-CZ',
-    hasMenuSection: menu.filter((category) => !category.demo).map((category) => ({
+    hasMenuSection: menuData.filter((category) => !category.demo).map((category) => ({
       '@type': 'MenuSection', name: category.schemaName || category.name,
       url: `${menuUrl}#${category.id}`,
       ...(category.groups ? {
@@ -72,6 +72,7 @@ export function seoPlugin() {
     transformIndexHtml: {
       order: 'pre',
       handler(html, context) {
+        if (context.path.startsWith('/admin')) return;
         const isMenu = context.path.startsWith('/menu');
         const url = isMenu ? menuUrl : `${origin}/`;
         const title = html.match(/<title>(.*?)<\/title>/)?.[1] || 'LOBBY CAFE';
@@ -98,7 +99,8 @@ export function seoPlugin() {
     },
     generateBundle() {
       const assets = {
-        'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
+        '_routes.json': JSON.stringify({ version: 1, include: ['/menu', '/menu/', '/menu/index.html', '/admin', '/admin/*', '/api/*', '/menu-images/*'], exclude: [] }),
+        'robots.txt': `User-agent: *\nDisallow: /admin\nDisallow: /api/admin\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
         'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/</loc></url><url><loc>${menuUrl}</loc></url></urlset>\n`,
         '_headers': 'https://lobby-web-a8t.pages.dev/*\n  X-Robots-Tag: noindex\n\nhttps://:deployment.lobby-web-a8t.pages.dev/*\n  X-Robots-Tag: noindex\n',
         'llms.txt': `# LOBBY CAFE\n\n> Kavárna a bar v centru Zlína. Výběrová káva, snídaně, brunch a drinky.\n\n## Oficiální stránky\n- [Úvod a kontakty](${origin}/)\n- [Menu s cenami](${menuUrl})\n\n## Návštěva\nAdresa: nám. T. G. Masaryka 2433, 760 01 Zlín, Česká republika.\nRezervace: +420 703 815 252.\nPondělí–čtvrtek 7:30–18:00; pátek 7:30–21:00; sobota 8:00–20:00; neděle 8:00–18:00.\nProvozovatel: TRIAMICUS s.r.o, IČO 09885684.\n\n## Interpretace nabídky\nMenu je dostupné v HTML bez JavaScriptu a doplněné strukturovanými daty Menu/MenuItem. Kategorie označená Demo nabídka obsahuje ilustrační, nikoliv skutečné produkty a je ze strukturovaného menu vynechána. U podzimní nabídky pochází texty a ceny z podkladů 10/2026; fotografie označené jako ilustrační nezobrazují ověřené produkty. Chybějící cenu ani aktuální dostupnost položek neodvozujte.\n`,
