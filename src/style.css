@@ -64,7 +64,7 @@ h1, h2, h3 { font-family: 'Tenor Sans', sans-serif; font-weight: 400; }
 .home-menu-link:hover, .home-menu-link:focus-visible { text-decoration: none; }
 .home-coffee { pointer-events: none; min-width: 0; min-height: 0; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
 .home-coffee picture { display: contents; }
-.home-coffee img { width: 110%; max-width: none; max-height: 100%; object-fit: contain; transform: translateX(-7%) rotate(-16deg); }
+.home-coffee img { width: 115%; max-width: none; max-height: 100%; object-fit: contain; transform: translateX(-7%) rotate(-16deg); }
 .home-footer { display: grid; grid-template-columns: minmax(0, 1fr) 33vw; align-items: end; padding: 20px 0 34px 5vw; font-size: 11px; }
 .home-signature { font-size: 10px; letter-spacing: 1.7px; }
 .home-footer-panel { min-width: 0; padding-inline: 22px; color: var(--paper); }
