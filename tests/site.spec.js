@@ -281,6 +281,8 @@ test('Deployment includes supplied favicon and menu operator details', async ({ 
   await expect(page.locator('.operator')).toContainText('IČ: 098 85 684');
   await expect(page.locator('.operator')).toContainText('Sídlem Osek nad Bečvou 401, 751 22');
   await expect(page.locator('.operator')).toContainText('Městským soudem v Praze, oddíl C, vložka 344060');
+  await expect(page.locator('.menu-hours')).toContainText('Po–Pá 7:30–18:00');
+  await expect(page.locator('.menu-hours')).toContainText('Ne 8:00–16:00');
 });
 
 test('Canonical metadata and structured menu are in HTML without JavaScript', async ({ browser, request }) => {

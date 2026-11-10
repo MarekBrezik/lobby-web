@@ -95,6 +95,7 @@ export async function onRequest(context) {
         const schema = JSON.stringify(structuredData(true, categories, data.hours)).replace(/</g, '\\u003c');
         return new HTMLRewriter()
           .on('.menu-layout', { element(element) { element.setInnerContent(renderMenuLayout(categories), { html: true }); } })
+          .on('.menu-hours', { element(element) { element.setInnerContent(renderHours(data.hours), { html: true }); } })
           .on('script[type="application/ld+json"]', { element(element) { element.setInnerContent(schema, { html: true }); } })
           .transform(result);
       });

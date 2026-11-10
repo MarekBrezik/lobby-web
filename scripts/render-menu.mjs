@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { menu } from '../src/menu-data.js';
 import { renderMenuLayout } from '../src/menu-render.js';
+import { defaultHours, renderHours } from '../src/hours.js';
 export { renderItem } from '../src/menu-render.js';
 
 await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
@@ -33,7 +34,7 @@ await writeFile(new URL('../menu/index.html', import.meta.url), `<!doctype html>
     <div class="menu-layout">${renderMenuLayout(menu)}</div>
     <aside class="menu-footnote"><p>Máte otázku k nabídce? Rádi vám poradíme.</p><a href="tel:+420703815252">+420 703 815 252 <span aria-hidden="true">↗</span></a></aside>
   </main>
-  <footer class="menu-footer menu-wrap"><a href="/">← Zpět do kavárny</a><span>nám. T. G. Masaryka 2433, Zlín</span><span>LOBBY CAFE</span><div class="operator"><p>Provozovatel:</p><p>TRIAMICUS s.r.o<br>IČ: 098 85 684<br>Sídlem Osek nad Bečvou 401, 751 22</p><p>Společnost zapsaná v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka 344060</p></div></footer>
+  <footer class="menu-footer menu-wrap"><a href="/">← Zpět do kavárny</a><span>nám. T. G. Masaryka 2433, Zlín</span><span>LOBBY CAFE</span><div class="menu-hours" aria-label="Otevírací doba">${renderHours(defaultHours)}</div><div class="operator"><p>Provozovatel:</p><p>TRIAMICUS s.r.o<br>IČ: 098 85 684<br>Sídlem Osek nad Bečvou 401, 751 22</p><p>Společnost zapsaná v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka 344060</p></div></footer>
 </body>
 </html>
 `);
