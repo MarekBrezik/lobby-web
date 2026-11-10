@@ -1,5 +1,12 @@
 import { menu } from '../src/menu-data.js';
 import { MenuError, normalizeMenu } from '../src/menu-model.js';
+import { defaultHours, normalizeHours } from '../src/hours.js';
+
+const parseDocument = (raw) => {
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) return { categories: normalizeMenu(parsed), hours: defaultHours };
+  return { categories: normalizeMenu(parsed.categories), hours: normalizeHours(parsed.hours ?? defaultHours) };
+};
 
 export const schemaSQL = `CREATE TABLE IF NOT EXISTS menu_documents (
   id TEXT PRIMARY KEY CHECK (id = 'main'),
@@ -20,18 +27,19 @@ export async function loadMenu(env, local = false) {
   try {
     if (local) await env.MENU_DB.batch(schemaSQL.split(';').filter((statement) => statement.trim()).map((statement) => env.MENU_DB.prepare(statement)));
     const row = await env.MENU_DB.prepare("SELECT revision, data, updated_at FROM menu_documents WHERE id = 'main'").first();
-    return row ? { revision: row.revision, categories: normalizeMenu(JSON.parse(row.data)), updatedAt: row.updated_at } : { revision: 0, categories: normalizeMenu(menu), updatedAt: null };
+    return row ? { revision: row.revision, ...parseDocument(row.data), updatedAt: row.updated_at } : { revision: 0, categories: normalizeMenu(menu), hours: defaultHours, updatedAt: null };
   } catch (error) {
     if (error instanceof MenuError) throw error;
     throw new MenuError('Databáze menu není připravená. Nejprve v D1 spusťte inicializační SQL.', 503);
   }
 }
 
-export async function saveMenu(env, categories, baseRevision, identity) {
+export async function saveMenu(env, categories, hours, baseRevision, identity) {
   if (!Number.isSafeInteger(baseRevision) || baseRevision < 0) throw new MenuError('Chybí platná verze nabídky.');
   if (!env.MENU_DB) throw new MenuError('Chybí databáze menu.', 503);
   const normalized = normalizeMenu(categories);
-  const json = JSON.stringify(normalized);
+  const normalizedHours = normalizeHours(hours);
+  const json = JSON.stringify({ categories: normalized, hours: normalizedHours });
   const now = new Date().toISOString();
   const statements = baseRevision === 0 ? [
     env.MENU_DB.prepare("INSERT INTO menu_history (revision, data, saved_at, saved_by) SELECT 0, ?, ?, 'initial' WHERE NOT EXISTS (SELECT 1 FROM menu_documents WHERE id = 'main')").bind(JSON.stringify(normalizeMenu(menu)), now),
@@ -43,5 +51,5 @@ export async function saveMenu(env, categories, baseRevision, identity) {
   const result = await env.MENU_DB.batch(statements);
   const revision = result[1].results?.[0]?.revision;
   if (!revision) throw new MenuError('Nabídku mezitím upravil někdo jiný. Vaše změny zůstaly v prohlížeči; stáhněte si zálohu a načtěte aktuální verzi.', 409);
-  return { categories: normalized, revision, updatedAt: now };
+  return { categories: normalized, hours: normalizedHours, revision, updatedAt: now };
 }

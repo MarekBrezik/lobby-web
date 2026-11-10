@@ -296,7 +296,7 @@ test('Canonical metadata and structured menu are in HTML without JavaScript', as
     const cafe = data['@graph'].find((entity) => entity['@type'] === 'CafeOrCoffeeShop');
     expect(cafe.address.addressLocality).toBe('Zlín');
     expect(cafe.telephone).toBe('+420703815252');
-    expect(cafe.openingHoursSpecification).toHaveLength(4);
+    expect(cafe.openingHoursSpecification).toHaveLength(3);
     if (route === '/menu') {
       const structuredMenu = data['@graph'].find((entity) => entity['@type'] === 'Menu');
       expect(structuredMenu.hasMenuSection).toHaveLength(menu.filter((category) => !category.demo).length);

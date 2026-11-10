@@ -5,6 +5,7 @@ import { MenuError, visibleMenu } from '../src/menu-model.js';
 import { renderMenuLayout } from '../src/menu-render.js';
 import { structuredData } from '../scripts/seo.mjs';
 import { menu } from '../src/menu-data.js';
+import { defaultHours, renderHours } from '../src/hours.js';
 
 const json = (value, status = 200) => Response.json(value, { status, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'X-Content-Type-Options': 'nosniff' } });
 const privateResponse = (response) => {
@@ -53,8 +54,8 @@ export async function onRequest(context) {
         let body;
         try { body = JSON.parse(new TextDecoder().decode(await readLimited(request, 1024 * 1024))); }
         catch (error) { if (error instanceof MenuError) throw error; throw new MenuError('Neplatný JSON.'); }
-        await loadMenu(env, identity.local);
-        return json(await saveMenu(env, body.categories, body.baseRevision, identity));
+        const current = await loadMenu(env, identity.local);
+        return json(await saveMenu(env, body.categories, body.hours ?? current.hours, body.baseRevision, identity));
       }
       if (path === '/api/admin/images' && request.method === 'POST') {
         const contentType = request.headers.get('Content-Type') || '';
@@ -71,30 +72,41 @@ export async function onRequest(context) {
     }
     if (path === '/api/menu') {
       if (request.method !== 'GET') return json({ error: 'Použijte GET.' }, 405);
-      const data = env.MENU_DB ? await loadMenu(env, isLocal(request, env)) : { revision: 0, categories: menu };
-      return json({ revision: data.revision, categories: visibleMenu(data.categories) });
+      const data = env.MENU_DB ? await loadMenu(env, isLocal(request, env)) : { revision: 0, categories: menu, hours: defaultHours };
+      return json({ revision: data.revision, categories: visibleMenu(data.categories), hours: data.hours });
     }
-    if (['/menu', '/menu/', '/menu/index.html'].includes(path) && ['GET', 'HEAD'].includes(request.method)) {
+    const pageRequest = async (transform) => {
       const assetRequest = new Request(request);
       for (const header of ['If-None-Match', 'If-Modified-Since', 'Range']) assetRequest.headers.delete(header);
       const response = await context.next(assetRequest);
       if (!response.ok) return response;
       let data;
       try { if (env.MENU_DB) data = await loadMenu(env, isLocal(request, env)); } catch { data = null; }
-      let result = new Response(response.body, response);
+      const result = new Response(response.body, response);
       for (const header of ['ETag', 'Last-Modified', 'Content-Length']) result.headers.delete(header);
       result.headers.set('Cache-Control', 'no-cache');
       result.headers.set('X-Menu-Source', data ? 'd1' : 'static');
       if (url.hostname === 'lobby-web-a8t.pages.dev' || url.hostname.endsWith('.lobby-web-a8t.pages.dev')) result.headers.set('X-Robots-Tag', 'noindex');
-      if (data) {
+      return data ? transform(result, data) : result;
+    };
+    if (['/menu', '/menu/', '/menu/index.html'].includes(path) && ['GET', 'HEAD'].includes(request.method)) {
+      return await pageRequest((result, data) => {
         const categories = visibleMenu(data.categories);
-        const schema = JSON.stringify(structuredData(true, categories)).replace(/</g, '\\u003c');
-        result = new HTMLRewriter()
+        const schema = JSON.stringify(structuredData(true, categories, data.hours)).replace(/</g, '\\u003c');
+        return new HTMLRewriter()
           .on('.menu-layout', { element(element) { element.setInnerContent(renderMenuLayout(categories), { html: true }); } })
           .on('script[type="application/ld+json"]', { element(element) { element.setInnerContent(schema, { html: true }); } })
           .transform(result);
-      }
-      return result;
+      });
+    }
+    if (['/', '/index.html'].includes(path) && ['GET', 'HEAD'].includes(request.method)) {
+      return await pageRequest((result, data) => {
+        const schema = JSON.stringify(structuredData(false, data.categories, data.hours)).replace(/</g, '\\u003c');
+        return new HTMLRewriter()
+          .on('.home-hours', { element(element) { element.setInnerContent(renderHours(data.hours), { html: true }); } })
+          .on('script[type="application/ld+json"]', { element(element) { element.setInnerContent(schema, { html: true }); } })
+          .transform(result);
+      });
     }
     return await context.next();
   } catch (error) {

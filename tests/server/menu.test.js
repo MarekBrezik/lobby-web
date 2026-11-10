@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { generateKeyPair, exportJWK, createLocalJWKSet, SignJWT } from 'jose';
 import { menu } from '../../src/menu-data.js';
 import { normalizeMenu, visibleMenu } from '../../src/menu-model.js';
+import { defaultHours, normalizeHours, renderHours, hoursSpecification } from '../../src/hours.js';
+import { structuredData } from '../../scripts/seo.mjs';
 import { renderMenuLayout } from '../../src/menu-render.js';
 import { authenticate, requireSameOrigin } from '../../server/auth.js';
 import { inspectImage } from '../../server/images.js';
@@ -77,4 +79,30 @@ test('image validation accepts PNG and rejects SVG, huge files and excessive dim
 test('body size limits also apply when content length is absent', async () => {
   await assert.rejects(readLimited(new Request('https://lobbycafe.cz', { method: 'POST', body: '12345' }), 4), { status: 413 });
   assert.equal((await readLimited(new Request('https://lobbycafe.cz', { method: 'POST', body: '123' }), 4)).length, 3);
+});
+
+test('default opening hours render the published markup and schema', () => {
+  const hours = normalizeHours(defaultHours);
+  assert.equal(renderHours(hours), '<span>Po–Pá <b>7:30–18:00</b></span><span>So <b>8:00–18:00</b></span><span>Ne <b>8:00–16:00</b></span>');
+  const specification = hoursSpecification(hours);
+  assert.equal(specification.length, 3);
+  assert.deepEqual(specification[0].dayOfWeek, ['https://schema.org/Monday', 'https://schema.org/Tuesday', 'https://schema.org/Wednesday', 'https://schema.org/Thursday', 'https://schema.org/Friday']);
+  assert.deepEqual(structuredData(false, menu, hours)['@graph'][0].openingHoursSpecification, specification);
+});
+
+test('opening hours normalize times, merge days and support closed days', () => {
+  const closedSunday = defaultHours.map((day, index) => index === 6 ? { closed: true } : { ...day });
+  const hours = normalizeHours(closedSunday);
+  assert.ok(renderHours(hours).includes('<span>Ne <b>zavřeno</b></span>'));
+  assert.equal(hoursSpecification(hours).length, 2);
+  const merged = normalizeHours(defaultHours.map((day) => ({ open: '9:00', close: '21:00' })));
+  assert.equal(renderHours(merged), '<span>Po–Ne <b>9:00–21:00</b></span>');
+  assert.equal(merged[0].open, '09:00');
+});
+
+test('opening hours reject malformed input', () => {
+  assert.throws(() => normalizeHours(defaultHours.slice(0, 6)));
+  for (const value of [{ open: 'sedm', close: '18:00' }, { open: '25:00', close: '18:00' }, { open: '18:00', close: '7:30' }, { closed: 'ano' }, null]) {
+    assert.throws(() => normalizeHours(defaultHours.map((day, index) => index === 0 ? value : day)));
+  }
 });

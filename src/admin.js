@@ -1,8 +1,10 @@
 import { normalizeMenu, layouts, imageHelp, validImagePath } from './menu-model.js';
+import { normalizeHours, dayNames } from './hours.js';
 import { escape } from './menu-render.js';
 
 const $ = (selector) => document.querySelector(selector);
-const state = { categories: [], selected: null, revision: 0, dirty: false, busy: false, uploads: 0, loaded: false };
+const HOURS = '#hours';
+const state = { categories: [], hours: [], selected: null, revision: 0, dirty: false, busy: false, uploads: 0, loaded: false };
 const selected = () => state.categories.find((category) => category.id === state.selected);
 const error = (message = '') => { $('#error').textContent = message; $('#error').hidden = !message; };
 const field = (label, key, value = '', type = 'text') => `<label class="admin-field"><span>${escape(label)}</span><input data-field="${key}" type="${type}" value="${escape(value)}"></label>`;
@@ -12,7 +14,7 @@ const action = (label, name, extra = '') => `<button type="button" data-action="
 
 function controls() {
   $('#publish').disabled = !state.loaded || !state.dirty || state.busy || state.uploads > 0;
-  for (const id of ['reload', 'export', 'add-category', 'add-seasonal']) $(`#${id}`).disabled = !state.loaded || state.busy;
+  for (const id of ['reload', 'export', 'add-category', 'add-seasonal', 'edit-hours']) $(`#${id}`).disabled = !state.loaded || state.busy;
   $('#editor').inert = state.busy;
   $('.admin-sidebar').inert = state.busy;
   $('#status').textContent = state.busy ? 'Ukládám…' : state.uploads ? 'Nahrávám fotografii…' : state.dirty ? 'Máte neuložené změny. Pro návštěvníky se projeví až po uložení.' : state.loaded ? `Uloženo · verze ${state.revision}${state.revision ? '' : ' · zatím výchozí podklady projektu'}` : 'Načítám nabídku…';
@@ -20,12 +22,19 @@ function controls() {
 function dirty() { state.dirty = true; controls(); }
 function renderNav() {
   $('#categories').innerHTML = state.categories.map((category) => `<button type="button" data-select="${escape(category.id)}" ${category.id === state.selected ? 'aria-current="true"' : ''}><span>${escape(category.name || 'Bez názvu')}</span><small>${category.seasonal ? 'Sezónní · ' : ''}${category.visible === false ? 'Skrytá' : 'Viditelná'}</small></button>`).join('');
+  if (state.selected === HOURS) $('#edit-hours').setAttribute('aria-current', 'true');
+  else $('#edit-hours').removeAttribute('aria-current');
 }
 function itemEditor(item, index, groupIndex) {
   const image = validImagePath(item.image) ? `<div class="admin-image"><img src="${escape(item.thumbnail || item.image)}" alt="${escape(item.name)}" width="100" height="100">${action('Odebrat fotografii', 'clear-image')}</div>` : '';
   return `<details class="item-editor" data-item="${index}" data-group="${groupIndex}"><summary><span class="item-title">${escape(item.name || 'Nová položka')}</span><span class="item-price">${escape(item.price || '')}</span><span>${item.visible === false ? 'Skrytá' : ''}</span></summary><div class="item-fields" data-scope="item"><div class="admin-field-grid">${field('Název položky', 'name', item.name)}${field('Cena', 'price', item.price)}${field('Množství / gramáž', 'amount', item.amount)}${field('Alergeny', 'allergens', item.allergens)}</div>${area('Popis / složení', 'description', item.description)}${check('Zobrazovat položku', 'visible', item.visible !== false)}${image}<label class="admin-field"><span>${item.image ? 'Vyměnit fotografii' : 'Přidat fotografii'}</span><input type="file" data-upload accept="image/jpeg,image/webp,image/png"></label><p class="admin-help">${imageHelp} Originál nejvýše 8 MB. PNG je také podporováno.</p>${check('Fotografie je pouze ilustrační', 'illustrative', Boolean(item.imageLabel))}<p class="admin-help image-warning">${escape(item._imageWarning || '')}</p><div class="admin-item-actions">${action('Posunout výš', 'item-up')}${action('Posunout níž', 'item-down')}${action('Odstranit položku', 'remove-item')}</div></div></details>`;
 }
+function hoursEditor() {
+  const rows = state.hours.map((day, index) => `<div class="admin-hours-row" data-scope="hours" data-day="${index}"><span class="admin-hours-day">${dayNames[index]}</span><div class="admin-hours-times"><label class="admin-field"><span>Otevření</span><input data-field="open" value="${escape(day.open)}" inputmode="numeric" placeholder="7:30" ${day.closed ? 'disabled' : ''}></label><label class="admin-field"><span>Zavření</span><input data-field="close" value="${escape(day.close)}" inputmode="numeric" placeholder="18:00" ${day.closed ? 'disabled' : ''}></label></div><label class="admin-check"><input type="checkbox" data-field="closed" ${day.closed ? 'checked' : ''}><span>Zavřeno</span></label></div>`).join('');
+  return `<h2>Otevírací doba</h2><p class="admin-help">Čas zadejte ve formátu 7:30 nebo 18:00. Den bez provozu označte jako zavřený. Změna se po uložení projeví na úvodní stránce i ve strojově čitelných údajích pro vyhledávače.</p>${rows}<p class="admin-help">Stejné dny za sebou se na webu sloučí, například Po–Čt 7:30–18:00.</p>`;
+}
 function renderEditor() {
+  if (state.selected === HOURS) { $('#editor').innerHTML = hoursEditor(); return; }
   const category = selected();
   if (!category) { $('#editor').innerHTML = '<h2>Začněte kategorií</h2><p>Přidejte běžnou nebo sezónní nabídku. Žádná sezónní nabídka není povinná.</p>'; return; }
   const groups = category.groups || [{ name: '', items: category.items }];
@@ -53,8 +62,9 @@ async function load() {
   try {
     const data = await api('/api/admin/menu');
     state.categories = data.categories;
+    state.hours = data.hours;
     state.revision = data.revision;
-    state.selected = state.categories.some((category) => category.id === state.selected) ? state.selected : state.categories[0]?.id;
+    if (state.selected !== HOURS) state.selected = state.categories.some((category) => category.id === state.selected) ? state.selected : state.categories[0]?.id;
     state.loaded = true;
     state.dirty = false;
     $('#identity').textContent = data.identity.local ? 'Lokální zkušební režim — neovlivňuje zveřejněný web' : `Přihlášeno: ${data.identity.email}`;
@@ -72,13 +82,19 @@ $('#categories').addEventListener('click', (event) => {
 $('#editor').addEventListener('input', (event) => {
   const input = event.target;
   if (!input.dataset.field) return;
-  const category = selected();
   const scope = input.closest('[data-scope]').dataset.scope;
+  const key = input.dataset.field;
+  const value = input.type === 'checkbox' ? input.checked : input.type === 'number' ? Number(input.value) : input.value;
+  if (scope === 'hours') {
+    state.hours[Number(input.closest('[data-day]').dataset.day)][key] = value;
+    dirty();
+    if (key === 'closed') renderEditor();
+    return;
+  }
+  const category = selected();
   const itemElement = input.closest('[data-item]');
   const groupIndex = Number(input.closest('[data-group]')?.dataset.group ?? -1);
   const object = scope === 'item' ? listFor(groupIndex)[Number(itemElement.dataset.item)] : scope === 'group' ? category.groups[groupIndex] : category;
-  const key = input.dataset.field;
-  const value = input.type === 'checkbox' ? input.checked : input.type === 'number' ? Number(input.value) : input.value;
   if (key === 'illustrative') object.imageLabel = value ? 'Ilustrační fotografie' : '';
   else object[key] = value;
   if (scope === 'category') {
@@ -96,6 +112,7 @@ $('#editor').addEventListener('click', (event) => {
   const button = event.target.closest('[data-action]');
   if (!button) return;
   const category = selected();
+  if (!category) return;
   const name = button.dataset.action;
   const groupIndex = Number(button.closest('[data-group]')?.dataset.group ?? -1);
   const itemIndex = Number(button.closest('[data-item]')?.dataset.item);
@@ -180,6 +197,11 @@ function addCategory(seasonal) {
   state.categories.push(category); state.selected = category.id;
   dirty(); render(); $('#editor input').focus();
 }
+$('#edit-hours').addEventListener('click', () => {
+  state.selected = HOURS;
+  render();
+  $('#editor').focus({ preventScroll: true });
+});
 $('#add-category').addEventListener('click', () => addCategory(false));
 $('#add-seasonal').addEventListener('click', () => addCategory(true));
 $('#reload').addEventListener('click', load);
@@ -187,15 +209,16 @@ $('#publish').addEventListener('click', async () => {
   error();
   try {
     const categories = normalizeMenu(state.categories);
+    const hours = normalizeHours(state.hours);
     state.busy = true; controls();
-    const result = await api('/api/admin/menu', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories, baseRevision: state.revision }) });
-    state.categories = result.categories; state.revision = result.revision; state.dirty = false;
+    const result = await api('/api/admin/menu', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ categories, hours, baseRevision: state.revision }) });
+    state.categories = result.categories; state.hours = result.hours; state.revision = result.revision; state.dirty = false;
     render();
   } catch (failure) { error(failure.message); }
   finally { state.busy = false; controls(); }
 });
 $('#export').addEventListener('click', () => {
-  const url = URL.createObjectURL(new Blob([JSON.stringify({ revision: state.revision, categories: state.categories }, null, 2)], { type: 'application/json' }));
+  const url = URL.createObjectURL(new Blob([JSON.stringify({ revision: state.revision, categories: state.categories, hours: state.hours }, null, 2)], { type: 'application/json' }));
   const anchor = document.createElement('a'); anchor.href = url; anchor.download = `lobby-menu-${new Date().toISOString().slice(0, 10)}.json`; anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });

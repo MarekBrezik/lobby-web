@@ -43,6 +43,11 @@
 .item-fields { padding: 0 18px 12px; }
 .admin-image { display: flex; align-items: center; gap: 16px; margin-top: 20px; }
 .admin-image img { width: 100px; height: 100px; object-fit: cover; }
+.admin-sidebar > button[aria-current] { border-color: var(--brown); background: var(--cream); }
+.admin-hours-row { display: grid; grid-template-columns: 90px minmax(0, 260px) auto; align-items: end; gap: 20px; padding: 10px 0; border-bottom: 1px solid var(--cream); }
+.admin-hours-day { font-size: 14px; padding-bottom: 10px; }
+.admin-hours-times { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.admin-hours-row .admin-field { margin: 0; }
 .admin-error { border: 1px solid var(--brown); padding: 16px; margin: 16px 4vw; background: var(--cream); font-size: 14px; }
 .admin-page input:focus-visible, .admin-page textarea:focus-visible, .admin-page select:focus-visible { outline: 2px solid var(--brown); outline-offset: 2px; }
 @media (max-width: 900px) {
