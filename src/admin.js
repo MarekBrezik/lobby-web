@@ -171,8 +171,13 @@ async function thumbnail(file) {
     canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
     canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
     canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', .82));
-    if (!blob) throw new Error('Nepodařilo se připravit náhled fotografie.');
+    const encode = (type, quality) => new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+    let blob = await encode('image/webp', .82);
+    for (const quality of [.8, .7, .6, .5]) {
+      if (blob && blob.size <= 1024 * 1024) break;
+      blob = await encode('image/jpeg', quality);
+    }
+    if (!blob || blob.size > 1024 * 1024) throw new Error('Nepodařilo se připravit náhled fotografie.');
     return blob;
   } finally { URL.revokeObjectURL(url); }
 }
@@ -188,7 +193,7 @@ $('#editor').addEventListener('change', async (event) => {
     const preview = await thumbnail(file);
     const form = new FormData();
     form.append('image', file);
-    form.append('thumbnail', preview, preview.type === 'image/webp' ? 'thumbnail.webp' : 'thumbnail.png');
+    form.append('thumbnail', preview, `thumbnail.${preview.type === 'image/webp' ? 'webp' : preview.type === 'image/png' ? 'png' : 'jpg'}`);
     const result = await api('/api/admin/images', { method: 'POST', body: form });
     item.image = result.image;
     item.thumbnail = result.thumbnail;
