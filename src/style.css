@@ -226,10 +226,6 @@ h1, h2, h3 { font-family: 'Tenor Sans', sans-serif; font-weight: 400; }
 .menu-category-cards .menu-item.has-image { display: block; padding: 0; border: 0; }
 .menu-category-cards .menu-item.has-image .menu-item-copy { padding-top: 16px; }
 .menu-category-cards .menu-item-image { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
-@media (hover: hover) and (pointer: fine) {
-  .menu-item-image { filter: grayscale(1); transition: filter .3s ease; }
-  .menu-item.has-image:hover .menu-item-image, .menu-item.has-image:focus-within .menu-item-image { filter: grayscale(0); }
-}
 @media (max-width: 760px) {
   .menu-category-cards .menu-items { grid-template-columns: 1fr; gap: 30px; }
 }

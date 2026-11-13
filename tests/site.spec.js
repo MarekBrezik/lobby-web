@@ -135,7 +135,7 @@ test('Home fits viewport and footer content is centered in the black strip', asy
   }
 });
 
-test('Landscape menu rails stay fixed and demo photos reveal color', async ({ page }) => {
+test('Landscape menu rails stay fixed and menu photos stay colored', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/menu');
   const arrow = page.locator('.menu-back-arrow');
@@ -152,9 +152,9 @@ test('Landscape menu rails stay fixed and demo photos reveal color', async ({ pa
   await expect(page.locator('#podzim .menu-category-subtitle')).toContainText('říjen 2026');
   const before = await logo.boundingBox();
   const photo = page.locator('.menu-item-image').first();
-  await expect(photo).toHaveCSS('filter', 'grayscale(1)');
+  await expect(photo).toHaveCSS('filter', 'none');
   await photo.hover();
-  await expect(photo).toHaveCSS('filter', 'grayscale(0)');
+  await expect(photo).toHaveCSS('filter', 'none');
   await page.evaluate(() => scrollTo(0, 800));
   expect(await logo.boundingBox()).toEqual(before);
   await arrow.click();
